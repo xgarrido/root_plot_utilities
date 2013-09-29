@@ -1,5 +1,5 @@
 // -*- mode: c++ ; -*-
-// plot_genbb_comparison.cxx
+// plot_histogram_comparison.cxx
 
 #include <iostream>
 #include <exception>
@@ -66,7 +66,7 @@ int main (int argc_, char ** argv_)
   params parameters;
   rendering_options options;
 
-  boost::program_options::options_description opts("Allowed options ");
+  boost::program_options::options_description opts ("Allowed options ");
   boost::program_options::positional_options_description args;
 
   try
@@ -259,4 +259,4 @@ int main (int argc_, char ** argv_)
   return (error_code);
 }
 
-// end of plot_genbb_comparison.cxx
+// end of plot_histogram_comparison.cxx
