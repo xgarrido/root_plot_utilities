@@ -1,5 +1,5 @@
 // -*- mode: c++ ; -*-
-// plot_histogram_comparison.cxx
+// root_plot_utilities.cxx
 
 #include <iostream>
 #include <exception>
@@ -27,7 +27,6 @@ struct params
   std::string reference_root_file;
   std::vector<std::string> root_files;           /// ROOT files
   std::vector<std::string> unrecognized_options; /// Unrecognized options
-
 
   // TFile options
   bool ls;
@@ -259,4 +258,4 @@ int main (int argc_, char ** argv_)
   return (error_code);
 }
 
-// end of plot_histogram_comparison.cxx
+// end of root_plot_utilities.cxx
