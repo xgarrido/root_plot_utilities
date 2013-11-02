@@ -20,8 +20,6 @@
 
 struct params
 {
-  params ();
-  void reset ();
   datatools::logger::priority log_priority; /// Logging priority flag
   bool interactive;                              /// ROOT interactive cint
   std::string reference_root_file;
@@ -35,27 +33,74 @@ struct params
   std::string graph_name;
 };
 
-params::params ()
-{
-  reset ();
-  return;
-}
-
-void params::reset ()
-{
-  log_priority = datatools::logger::PRIO_WARNING;
-  interactive = true;
-  root_files.clear ();
-  unrecognized_options.clear ();
-
-  ls = false;
-  return;
-}
-
 void usage (const boost::program_options::options_description & options_,
             std::ostream & out_)
 {
   return;
+}
+
+void cldialog (int argc_, char ** argv_, params & parameters_)
+{
+  namespace bpo = boost::program_options;
+  bpo::options_description opts;
+  opts.add_options ()
+    ("logging-priority,g",
+     boost::program_options::value<std::string>()
+     ->default_value("notice"),
+     "set the logging priority threshold")
+    ("interactive,I",
+     boost::program_options::value<bool>(&parameters_.interactive)
+     ->zero_tokens ()
+     ->default_value (true),
+     "run in interactive mode")
+    ("ls",
+     boost::program_options::value<bool>(&parameters_.ls)
+     ->zero_tokens ()
+     ->default_value (false),
+     "list ROOT file content")
+    ("reference-root-file",
+     boost::program_options::value<std::string>(&parameters_.reference_root_file),
+     "set the ROOT reference file (from which the comparison will be done)")
+    ("root-files,i",
+     boost::program_options::value<std::vector<std::string> >(&parameters_.root_files),
+     "set input ROOT file(s)")
+    ("histogram-name",
+     boost::program_options::value<std::string>(&parameters_.histogram_name),
+     "set the histogram name to be catch from ROOT archive")
+    ("graph-name",
+     boost::program_options::value<std::string>(&parameters_.graph_name),
+     "set the graph name to be catch from ROOT archive")
+    ; // end of options description
+  bpo::positional_options_description args;
+  args.add ("root-files", -1);
+
+  bpo::variables_map vm;
+  bpo::parsed_options parsed =
+    bpo::command_line_parser (argc_, argv_)
+    .options (opts)
+    .positional (args)
+    .allow_unregistered ()
+    .run ();
+  parameters_.unrecognized_options
+    = bpo::collect_unrecognized (parsed.options, bpo::include_positional);
+  bpo::store (parsed, vm);
+  bpo::notify (vm);
+
+  // Fetch the opts/args :
+  if (vm.count ("help")) {
+    usage(opts, std::cout);
+    return;
+  }
+
+  if (vm.count("logging-priority"))
+    {
+      const std::string logging_label = vm["logging-priority"].as<std::string>();
+      parameters_.log_priority = datatools::logger::get_priority(logging_label);
+      DT_THROW_IF(parameters_.log_priority == datatools::logger::PRIO_UNDEFINED,
+                  std::logic_error,
+                  "Invalid logging priority label '" << logging_label << "' !");
+    }
+
 }
 
 int main (int argc_, char ** argv_)
@@ -65,149 +110,75 @@ int main (int argc_, char ** argv_)
   params parameters;
   rendering_options options;
 
-  boost::program_options::options_description opts ("Allowed options ");
-  boost::program_options::positional_options_description args;
 
   try
     {
-      std::vector<std::string> root_files;
-      opts.add_options ()
+      cldialog (argc_, argv_, parameters);
+      // ("logx",
+      //  boost::program_options::value<bool>(&options.logx)
+      //  ->zero_tokens ()
+      //  ->default_value (false),
+      //  "enable logarithmic X scale"
+      //  )
 
-        ("logging-priority,g",
-         boost::program_options::value<std::string>()
-         ->default_value("notice"),
-         "set the logging priority threshold")
+      //   ("logy",
+      //    boost::program_options::value<bool>(&options.logy)
+      //    ->zero_tokens ()
+      //    ->default_value (false),
+      //    "enable logarithmic Y scale"
+      //    )
 
-        ("interactive,I",
-         boost::program_options::value<bool>(&parameters.interactive)
-         ->zero_tokens ()
-         ->default_value (true),
-         "run in interactive mode"
-         )
+      //   ("xmin",
+      //    boost::program_options::value<double>(&options.xmin),
+      //    "set minimal value for X axis"
+      //    )
 
-        ("ls",
-         boost::program_options::value<bool>(&parameters.ls)
-         ->zero_tokens ()
-         ->default_value (false),
-         "list ROOT file content"
-         )
+      //   ("xmax",
+      //    boost::program_options::value<double>(&options.xmax),
+      //    "set maximal value for X axis"
+      //    )
 
-        ("reference-root-file",
-         boost::program_options::value<std::string>(&parameters.reference_root_file),
-         "set the ROOT reference file (from which the comparison will be done)"
-         )
+      //   ("ymin",
+      //    boost::program_options::value<double>(&options.ymin),
+      //    "set minimal value for Y axis"
+      //    )
 
-        ("root-files,i",
-         boost::program_options::value<std::vector<std::string> >(&parameters.root_files),
-         "set input ROOT file(s)"
-         )
+      //   ("ymax",
+      //    boost::program_options::value<double>(&options.ymax),
+      //    "set maximal value for Y axis"
+      //    )
 
-        ("histogram-name",
-         boost::program_options::value<std::string>(&parameters.histogram_name),
-         "set the histogram name to be catch from ROOT archive"
-         )
+      //   ("show-ratio",
+      //    boost::program_options::value<bool>(&options.show_ratio)
+      //    ->zero_tokens ()
+      //    ->default_value (false),
+      //    "show ratio between histograms/graphs"
+      //    )
 
-        ("graph-name",
-         boost::program_options::value<std::string>(&parameters.graph_name),
-         "set the graph name to be catch from ROOT archive"
-         )
+      //   ("fill-reference",
+      //    boost::program_options::value<bool>(&options.fill_reference)
+      //    ->zero_tokens ()
+      //    ->default_value (false),
+      //    "fill reference histogram"
+      //    )
 
-        ("logx",
-         boost::program_options::value<bool>(&options.logx)
-         ->zero_tokens ()
-         ->default_value (false),
-         "enable logarithmic X scale"
-         )
+      //   ("colors",
+      //    boost::program_options::value<std::string>(),
+      //    "set color(s)"
+      //    )
 
-        ("logy",
-         boost::program_options::value<bool>(&options.logy)
-         ->zero_tokens ()
-         ->default_value (false),
-         "enable logarithmic Y scale"
-         )
 
-        ("xmin",
-         boost::program_options::value<double>(&options.xmin),
-         "set minimal value for X axis"
-         )
 
-        ("xmax",
-         boost::program_options::value<double>(&options.xmax),
-         "set maximal value for X axis"
-         )
 
-        ("ymin",
-         boost::program_options::value<double>(&options.ymin),
-         "set minimal value for Y axis"
-         )
-
-        ("ymax",
-         boost::program_options::value<double>(&options.ymax),
-         "set maximal value for Y axis"
-         )
-
-        ("show-ratio",
-         boost::program_options::value<bool>(&options.show_ratio)
-         ->zero_tokens ()
-         ->default_value (false),
-         "show ratio between histograms/graphs"
-         )
-
-        ("fill-reference",
-         boost::program_options::value<bool>(&options.fill_reference)
-         ->zero_tokens ()
-         ->default_value (false),
-         "fill reference histogram"
-         )
-
-        ("colors",
-         boost::program_options::value<std::string>(),
-         "set color(s)"
-         )
-
-        ; // end of options description
-
-      // Describe command line arguments :
-      boost::program_options::positional_options_description args;
-      args.add ("root-files", -1);
-
-      boost::program_options::variables_map vm;
-      boost::program_options::parsed_options parsed =
-        boost::program_options::command_line_parser (argc_, argv_)
-        .options (opts)
-        .positional (args)
-        .allow_unregistered ()
-        .run ();
-      parameters.unrecognized_options
-        = boost::program_options::collect_unrecognized (parsed.options,
-                                                        boost::program_options::include_positional);
-      boost::program_options::store (parsed, vm);
-      boost::program_options::notify (vm);
-
-      // Fetch the opts/args :
-      if (vm.count ("help")) {
-        usage(opts, std::cout);
-        return error_code;
-      }
-
-      if (vm.count("logging-priority"))
-        {
-          const std::string logging_label = vm["logging-priority"].as<std::string>();
-          parameters.log_priority = datatools::logger::get_priority(logging_label);
-          DT_THROW_IF(parameters.log_priority == datatools::logger::PRIO_UNDEFINED,
-                      std::logic_error,
-                      "Invalid logging priority label '" << logging_label << "' !");
-        }
-
-      if (vm.count ("colors"))
-        {
-          boost::char_separator<char> sep(",");
-          boost::tokenizer<boost::char_separator<char> > tokens(vm["colors"].as<std::string>(),
-                                                                 sep);
-          BOOST_FOREACH (const std::string& t, tokens) {
-            options.colors.push_back (t);
-          }
-        }
+      // if (vm.count ("colors"))
+      //   {
+      //     boost::char_separator<char> sep(",");
+      //     boost::tokenizer<boost::char_separator<char> > tokens(vm["colors"].as<std::string>(),
+      //                                                            sep);
+      //     BOOST_FOREACH (const std::string& t, tokens) {
+      //       options.colors.push_back (t);
+      //     }
+      //   }
 
       if (!parameters.reference_root_file.empty ())
         {
