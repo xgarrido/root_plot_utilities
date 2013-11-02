@@ -28,7 +28,8 @@ find_package(datatools 5.0.0 REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS} ${datatools_INCLUDE_DIRS})
 
 add_library(root_plot_utilities SHARED
-  base_container.h base_container.cc)
+  base_container.h
+  base_container.cc)
 
 install(FILES
   ${PROJECT_BINARY_DIR}/libroot_plot_utilities${CMAKE_SHARED_LIBRARY_SUFFIX}
@@ -38,9 +39,9 @@ install(FILES
   WORLD_READ WORLD_EXECUTE
   )
 
-add_executable(plot_histogram_comparison plot_histogram_comparison.cxx)
+add_executable(plot_histogram plot_histogram.cxx)
 
-target_link_libraries(plot_histogram_comparison
+target_link_libraries(plot_histogram
   root_plot_utilities
   ${ROOT_LIBRARIES}
   ${Boost_LIBRARIES}
@@ -48,7 +49,7 @@ target_link_libraries(plot_histogram_comparison
   )
 
 install(FILES
-  ${PROJECT_BINARY_DIR}/plot_histogram_comparison
+  ${PROJECT_BINARY_DIR}/plot_histogram
   DESTINATION ${CMAKE_INSTALL_PREFIX}
   PERMISSIONS OWNER_READ OWNER_EXECUTE
   GROUP_READ GROUP_EXECUTE
