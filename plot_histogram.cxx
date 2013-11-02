@@ -1,5 +1,5 @@
 // -*- mode: c++ ; -*-
-// root_plot_utilities.cxx
+// plot_histogram.cxx
 
 #include <iostream>
 #include <exception>
@@ -258,4 +258,4 @@ int main (int argc_, char ** argv_)
   return (error_code);
 }
 
-// end of root_plot_utilities.cxx
+// end of plot_histogram.cxx
