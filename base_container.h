@@ -7,43 +7,46 @@
 
 #include <manager.h>
 
-static const int get_color (const std::string & color_name_);
-
-class base_container {
-
-public:
-
-  base_container ();
-
-  void set_logging_priority (const datatools::logger::priority priority_);
-
-  datatools::logger::priority get_logging_priority () const;
-
-  virtual void grab (const std::vector<std::string> & files_, const std::string & name_) = 0;
-
-  virtual void show (const manager::parameters & options_) = 0;
-
-protected:
-
-  datatools::logger::priority _logging_priority;
-};
-
+// Forward declaration
 class TH1;
 
-class histogram_container : public base_container {
+namespace rpu {
 
-public:
+  class base_container {
 
-  typedef std::map<std::string, std::vector<TH1*> > histogram_dict_type;
+  public:
 
-  void grab (const std::vector<std::string> & files_, const std::string & name_);
+    base_container ();
 
-  void show (const manager::parameters & options_);
+    void set_logging_priority (const datatools::logger::priority priority_);
 
-private:
-  histogram_dict_type _histos1d_;
-};
+    datatools::logger::priority get_logging_priority () const;
 
-class graph_container : public base_container {
-};
+    virtual void grab (const std::vector<std::string> & files_, const std::string & name_) = 0;
+
+    virtual void show (const manager::parameters & options_) = 0;
+
+  protected:
+
+    datatools::logger::priority _logging_priority;
+  };
+
+  class histogram_container : public base_container {
+
+  public:
+
+    typedef std::map<std::string, std::vector<TH1*> > histogram_dict_type;
+
+    void grab (const std::vector<std::string> & files_, const std::string & name_);
+
+    void show (const manager::parameters & options_);
+
+  private:
+    histogram_dict_type _histos1d_;
+  };
+
+  class graph_container : public base_container {
+  };
+
+} // end of rpu namespace
 #endif

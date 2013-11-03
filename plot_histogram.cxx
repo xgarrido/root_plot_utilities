@@ -27,10 +27,10 @@ int main (int argc_, char ** argv_)
 
   try
     {
-      manager mgr;
+      rpu::manager mgr;
       mgr.cldialog (argc_, argv_);
 
-      const manager::parameters & params = mgr.get_parameters ();
+      const rpu::manager::parameters & params = mgr.get_parameters ();
       if (params.ls)
         {
           for (std::vector<std::string>::const_iterator
@@ -44,10 +44,10 @@ int main (int argc_, char ** argv_)
           return EXIT_SUCCESS;
         }
 
-      base_container * BC = 0;
+      rpu::base_container * BC = 0;
       if (! params.histogram_name.empty ())
         {
-          BC = new histogram_container;
+          BC = new rpu::histogram_container;
         }
       else
         {
