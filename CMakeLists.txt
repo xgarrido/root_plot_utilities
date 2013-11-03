@@ -28,6 +28,8 @@ find_package(datatools 5.0.0 REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS} ${datatools_INCLUDE_DIRS})
 
 add_library(root_plot_utilities SHARED
+  manager.h
+  manager.cc
   base_container.h
   base_container.cc)
 

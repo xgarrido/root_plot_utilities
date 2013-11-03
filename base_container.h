@@ -1,27 +1,13 @@
 #ifndef BASE_CONTAINER_H_
-#define BASE_CONTAINER_H_
+#define BASE_CONTAINER_H_ 1
 
 #include <vector>
 #include <string>
 #include <map>
 
-#include <datatools/logger.h>
+#include <manager.h>
 
-struct rendering_options {
-  rendering_options ();
-
-  static const int get_color (const std::string & color_name_);
-  std::vector<std::string> colors;
-
-  bool show_ratio;
-  bool logx;
-  bool logy;
-  double xmin;
-  double xmax;
-  double ymin;
-  double ymax;
-  bool fill_reference;
-};
+static const int get_color (const std::string & color_name_);
 
 class base_container {
 
@@ -35,7 +21,7 @@ public:
 
   virtual void grab (const std::vector<std::string> & files_, const std::string & name_) = 0;
 
-  virtual void show (const rendering_options & options_) = 0;
+  virtual void show (const manager::parameters & options_) = 0;
 
 protected:
 
@@ -52,7 +38,7 @@ public:
 
   void grab (const std::vector<std::string> & files_, const std::string & name_);
 
-  void show (const rendering_options & options_);
+  void show (const manager::parameters & options_);
 
 private:
   histogram_dict_type _histos1d_;

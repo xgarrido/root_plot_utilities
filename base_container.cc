@@ -35,7 +35,7 @@ color::lookup_table construct_lookup_table ()
 }
 
 
-const int rendering_options::get_color (const std::string & color_name_)
+const int get_color (const std::string & color_name_)
 {
   static color::lookup_table a;
   if (a.empty ()) a = construct_lookup_table ();
@@ -53,19 +53,6 @@ const int rendering_options::get_color (const std::string & color_name_)
   else { cname = *i; ++i;}
   color::lookup_table::const_iterator p = a.find (cname);
   return (p != a.end () ? p->second : a.begin ()->second);
-}
-
-rendering_options::rendering_options ()
-{
-  logx = false;
-  logy = false;
-  datatools::invalidate (xmin);
-  datatools::invalidate (xmax);
-  datatools::invalidate (ymin);
-  datatools::invalidate (ymin);
-  show_ratio = false;
-  fill_reference = false;
-  return;
 }
 
 void base_container::set_logging_priority (datatools::logger::priority priority_)
@@ -115,7 +102,7 @@ void histogram_container::grab (const std::vector<std::string> & files_, const s
     }
 }
 
-void histogram_container::show (const rendering_options & options_)
+void histogram_container::show (const manager::parameters & options_)
 {
   if (_histos1d_.empty ())
     {
@@ -163,8 +150,8 @@ void histogram_container::show (const rendering_options & options_)
           if (options_.logy) pads[0]->SetLogy ();
 
           const int icolor
-            = rendering_options::get_color (options_.colors.empty () || cnt >= options_.colors.size () ?
-                                            "" : options_.colors.at (cnt));
+            = get_color (options_.colors.empty () || cnt >= options_.colors.size () ?
+                         "" : options_.colors.at (cnt));
           a_histo->SetMarkerColor (icolor);
           a_histo->SetLineColor   (icolor);
           if (j == i->second.begin ())
@@ -173,7 +160,7 @@ void histogram_container::show (const rendering_options & options_)
               if (options_.fill_reference)
                 {
                   a_histo->SetFillColor (icolor);
-                  a_histo->SetLineColor (rendering_options::get_color ("black"));
+                  a_histo->SetLineColor (get_color ("black"));
                 }
               if (datatools::is_valid (options_.xmax))
                 a_histo->GetXaxis ()->SetRangeUser (a_histo->GetXaxis ()->GetXmin (),
