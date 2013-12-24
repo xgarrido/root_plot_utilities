@@ -205,9 +205,7 @@ namespace rpu {
           }
 
         const std::string latex_name = name + (options_.show_ratio ? "_with_ratio" : "") + ".tex";
-        const std::string tikz_name  = name + (options_.show_ratio ? "_with_ratio" : "") + ".tikz";
         a_canvas->Print (latex_name.c_str ());
-        rename (latex_name.c_str (), tikz_name.c_str ());
         a_canvas->Update ();
       }
   }
