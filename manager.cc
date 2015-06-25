@@ -1,21 +1,34 @@
 // -*- mode: c++ ; -*-
 // manager.cc
 
-#include <boost/program_options.hpp>
-#include <boost/foreach.hpp>
-#include <boost/tokenizer.hpp>
-
-#include <datatools/exception.h>
-
+// Ourselves:
 #include <manager.h>
 
+// - Boost:
+#include <boost/tokenizer.hpp>
+// - Bayeux/datatools:
+#include <bayeux/datatools/exception.h>
+#include <bayeux/datatools/utils.h>
+
 namespace rpu {
+
+  void manager::usage(const boost::program_options::options_description & od_,
+                      std::ostream & out_)
+  {
+    out_ << "Usage:" << std::endl
+         << "  rph [options]" << std::endl
+         << "Options" << std::endl
+         << od_ << std::endl;
+    return;
+  }
 
   void manager::cldialog(int argc_, char ** argv_)
   {
     namespace bpo = boost::program_options;
     bpo::options_description opts;
-    opts.add_options ()
+    opts.add_options()
+      ("help,h",
+       "print this help message")
       ("logging-priority,g",
        bpo::value<std::string>()
        ->default_value("notice"),
@@ -23,7 +36,7 @@ namespace rpu {
       ("interactive,I",
        bpo::value<bool>(&_parameters_.interactive)
        ->zero_tokens()
-       ->default_value(true),
+       ->default_value(false),
        "run in interactive mode")
       ("ls",
        bpo::value<bool>(&_parameters_.ls)
@@ -39,9 +52,9 @@ namespace rpu {
       ("histogram-name",
        bpo::value<std::string>(&_parameters_.histogram_name),
        "set the histogram name to be catch from ROOT archive")
-      ("graph-name",
-       bpo::value<std::string>(&_parameters_.graph_name),
-       "set the graph name to be catch from ROOT archive")
+      // ("graph-name",
+      //  bpo::value<std::string>(&_parameters_.graph_name),
+      //  "set the graph name to be catch from ROOT archive")
       ("logx",
        bpo::value<bool>(&_parameters_.logx)
        ->zero_tokens()
@@ -53,16 +66,20 @@ namespace rpu {
        ->default_value(false),
        "enable logarithmic Y scale")
       ("xmin",
-       bpo::value<double>(&_parameters_.xmin),
+       bpo::value<double>(&_parameters_.xmin)
+       ->default_value(datatools::invalid_real()),
        "set minimal value for X axis")
       ("xmax",
-       bpo::value<double>(&_parameters_.xmax),
-       "set maximal value for X axis")
+       bpo::value<double>(&_parameters_.xmax)
+      ->default_value(datatools::invalid_real()),
+        "set maximal value for X axis")
       ("ymin",
-       bpo::value<double>(&_parameters_.ymin),
+       bpo::value<double>(&_parameters_.ymin)
+       ->default_value(datatools::invalid_real()),
        "set minimal value for Y axis")
       ("ymax",
-       bpo::value<double>(&_parameters_.ymax),
+       bpo::value<double>(&_parameters_.ymax)
+       ->default_value(datatools::invalid_real()),
        "set maximal value for Y axis")
       ("show-ratio",
        bpo::value<bool>(&_parameters_.show_ratio)
@@ -79,7 +96,7 @@ namespace rpu {
        "set color(s)")
       ; // end of options description
     bpo::positional_options_description args;
-    args.add ("root-files", -1);
+    args.add("root-files", -1);
 
     bpo::variables_map vm;
     bpo::parsed_options parsed = bpo::command_line_parser(argc_, argv_)
@@ -93,10 +110,10 @@ namespace rpu {
     bpo::notify(vm);
 
     // Fetch the opts/args :
-    // if (vm.count ("help")) {
-    //   usage(opts, std::cout);
-    //   return;
-    // }
+    if (vm.count("help")) {
+      usage(opts);
+      return;
+    }
 
     if (vm.count("logging-priority")) {
       const std::string logging_label = vm["logging-priority"].as<std::string>();
@@ -105,11 +122,12 @@ namespace rpu {
                   std::logic_error,
                   "Invalid logging priority label '" << logging_label << "' !");
     }
+
     if (vm.count ("colors")) {
       boost::char_separator<char> sep(",");
       boost::tokenizer<boost::char_separator<char> >
         tokens(vm["colors"].as<std::string>(), sep);
-      BOOST_FOREACH(const std::string& t, tokens) {
+      for (auto t: tokens) {
         _parameters_.colors.push_back(t);
       }
     }

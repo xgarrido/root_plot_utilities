@@ -111,102 +111,98 @@ namespace rpu {
       return;
     }
 
-  //   for (auto ihisto : _histos1d_) {
-  //     const std::string & name = ihisto.first;
+    this->_process();
 
-  //       DT_LOG_DEBUG (get_logging_priority (), "Plotting histogram " << name);
-
-  //       TCanvas * a_canvas = new TCanvas;
-  //       a_canvas->SetName (name.c_str ());
-  //       TPad * pads[2];
-
-  //       if (options_.show_ratio)
-  //         {
-  //           a_canvas->SetWindowSize (600, 700);
-  //           pads[0] = new TPad ("top_pad", "top_pad", 0.0, 0.302, 1.0, 1.0);
-  //           pads[1] = new TPad ("bot_pad", "bot_pad", 0.0, 0.0, 1.0, 0.298);
-  //           pads[0]->SetBottomMargin (0);
-  //           pads[1]->SetTopMargin (0);
-  //           pads[0]->Draw ();
-  //           pads[1]->Draw ();
-  //         }
-  //       else
-  //         {
-  //           a_canvas->SetWindowSize (600, 500);
-  //           pads[0] = a_canvas;
-  //         }
-
-  //       // Pointer to the reference histogram for ratio mode
-  //       TH1 * ref = 0;
-  //       size_t cnt = 0;
-  //       for (std::vector<TH1*>::iterator j = i->second.begin ();
-  //            j != i->second.end (); ++j, ++cnt)
-  //         {
-  //           TH1 * a_histo = *j;
-
-  //           pads[0]->cd ();
-  //           if (options_.logx) pads[0]->SetLogx ();
-  //           if (options_.logy) pads[0]->SetLogy ();
-
-  //           const int icolor
-  //             = get_color (options_.colors.empty () || cnt >= options_.colors.size () ?
-  //                          "" : options_.colors.at (cnt));
-  //           a_histo->SetMarkerColor (icolor);
-  //           a_histo->SetLineColor   (icolor);
-  //           if (j == i->second.begin ())
-  //             {
-  //               a_histo->Draw ();
-  //               if (options_.fill_reference)
-  //                 {
-  //                   a_histo->SetFillColor (icolor);
-  //                   a_histo->SetLineColor (get_color ("black"));
-  //                 }
-  //               if (datatools::is_valid (options_.xmax))
-  //                 a_histo->GetXaxis ()->SetRangeUser (a_histo->GetXaxis ()->GetXmin (),
-  //                                                     options_.xmax);
-  //               if (datatools::is_valid (options_.xmin))
-  //                 a_histo->GetXaxis ()->SetRangeUser (options_.xmin,
-  //                                                     a_histo->GetXaxis ()->GetXmax ());
-  //             }
-  //           else
-  //             {
-  //               a_histo->Draw ("EPX0 && same");
-  //               a_histo->SetMarkerStyle (20);
-  //             }
-  //           if (options_.show_ratio)
-  //             {
-  //               pads[1]->cd ();
-  //               TH1 * clone = (TH1*)a_histo->Clone ();
-  //               clone->Sumw2 ();
-  //               clone->SetStats (0);
-  //               clone->Divide (i->second.front ());
-  //               if (j == i->second.begin ())
-  //                 {
-  //                   clone->Draw ("AXIS");
-  //                   ref = clone;
-  //                   ref->GetXaxis ()->SetLabelOffset (0.05);
-  //                   ref->GetXaxis ()->SetTitleOffset (2.0);
-  //                   ref->GetXaxis ()->SetTickLength (0.03);
-  //                   ref->GetYaxis ()->SetTitle ("\\Updelta\\;\\text{ratio}");
-  //                   TF1* f = new TF1 ("", "1", ref->GetXaxis ()->GetXmin (), ref->GetXaxis ()->GetXmax ());
-  //                   f->SetLineStyle (kDashed);
-  //                   f->Draw ("L && same");
-  //                 }
-  //               else
-  //                 {
-  //                   clone->Draw ("EPX0 && same");
-  //                   ref->GetYaxis ()
-  //                     ->SetRangeUser (0.9*std::min (ref->GetMinimum (), clone->GetMinimum ()),
-  //                                     1.1*std::max (ref->GetMaximum (), clone->GetMaximum ()));
-  //                 }
-  //             }
-  //         }
-
-  //       const std::string latex_name = name + (options_.show_ratio ? "_with_ratio" : "") + ".tex";
-  //       a_canvas->Print (latex_name.c_str ());
-  //       a_canvas->Update ();
-  // }
     return;
   }
 
+  void histogram_container::_process()
+  {
+    for (auto ientry : _histos1d_) {
+      const std::string & name = ientry.first;
+      DT_LOG_DEBUG(get_logging_priority(), "Plotting histogram " << name);
+
+      TCanvas * a_canvas = new TCanvas;
+      a_canvas->SetName(name.c_str());
+      TPad * pads[2];
+
+      if (_params->show_ratio) {
+        a_canvas->SetWindowSize(600, 700);
+        pads[0] = new TPad("top_pad", "top_pad", 0.0, 0.302, 1.0, 1.0);
+        pads[1] = new TPad("bot_pad", "bot_pad", 0.0, 0.0, 1.0, 0.298);
+        pads[0]->SetBottomMargin(0);
+        pads[1]->SetTopMargin(0);
+        pads[0]->Draw();
+        pads[1]->Draw();
+      } else {
+        a_canvas->SetWindowSize(600, 500);
+        pads[0] = a_canvas;
+      }
+
+      // Pointer to the reference histogram for ratio mode
+      TH1 * ref = 0;
+      size_t cnt = 0;
+      std::vector<TH1*> vhistos = ientry.second;
+      for (auto & ihisto : vhistos) {
+        TH1 * a_histo = ihisto;
+
+        pads[0]->cd();
+        if (_params->logx) pads[0]->SetLogx();
+        if (_params->logy) pads[0]->SetLogy();
+
+        const int icolor
+          = get_color(_params->colors.empty() || cnt >= _params->colors.size() ?
+                      "" : _params->colors.at(cnt));
+        a_histo->SetMarkerColor(icolor);
+        a_histo->SetLineColor(icolor);
+        if (&ihisto == &vhistos.front()) {
+          a_histo->Draw();
+          if (_params->fill_reference) {
+            a_histo->SetFillColor(icolor);
+            a_histo->SetLineColor(get_color("black"));
+          }
+          if (datatools::is_valid(_params->xmin)) {
+              a_histo->GetXaxis()->SetRangeUser(_params->xmin,
+                                                a_histo->GetXaxis()->GetXmax());
+          }
+          if (datatools::is_valid(_params->xmax)) {
+              a_histo->GetXaxis()->SetRangeUser(a_histo->GetXaxis()->GetXmin(),
+                                                _params->xmax);
+          }
+        } else {
+          a_histo->Draw("EPX0 && same");
+          a_histo->SetMarkerStyle(20);
+        }
+
+        if (_params->show_ratio) {
+          pads[1]->cd();
+          TH1 * clone = (TH1*)a_histo->Clone();
+          clone->Sumw2();
+          clone->SetStats(0);
+          clone->Divide(vhistos.front());
+          if (&ihisto == &vhistos.front()) {
+            clone->Draw("AXIS");
+            ref = clone;
+            ref->GetXaxis()->SetLabelOffset(0.05);
+            ref->GetXaxis()->SetTitleOffset(2.0);
+            ref->GetXaxis()->SetTickLength(0.03);
+            ref->GetYaxis()->SetTitle("\\Updelta\\;\\text{ratio}");
+            TF1* f = new TF1("", "1", ref->GetXaxis()->GetXmin(), ref->GetXaxis()->GetXmax());
+            f->SetLineStyle(kDashed);
+            f->Draw("L && same");
+          } else {
+            clone->Draw("EPX0 && same");
+            ref->GetYaxis()
+              ->SetRangeUser(0.9*std::min(ref->GetMinimum(), clone->GetMinimum()),
+                             1.1*std::max(ref->GetMaximum(), clone->GetMaximum()));
+          }
+        }
+      }
+
+      const std::string latex_name = name + (_params->show_ratio ? "_with_ratio" : "") + ".tex";
+      a_canvas->Print(latex_name.c_str());
+      a_canvas->Update();
+    }
+    return;
+  }
 } // end of rpu namespace

@@ -1,7 +1,11 @@
 #ifndef RPU_MANAGER_H
 #define RPU_MANAGER_H 1
 
-#include <datatools/logger.h>
+// Third party:
+// - Boost:
+#include <boost/program_options.hpp>
+// - Bayeux/datatools:
+#include <bayeux/datatools/logger.h>
 
 namespace rpu {
 
@@ -33,6 +37,9 @@ namespace rpu {
 
     /// Command line dialog
     void cldialog(int argc_, char ** argv_);
+
+    /// Print usage
+    void usage(const boost::program_options::options_description & od_, std::ostream & out_ = std::clog);
 
     /// Get a non-mutable reference to parameters
     const parameters & get_parameters() const;

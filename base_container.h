@@ -46,9 +46,16 @@ namespace rpu {
     /// 1D histogram dictionnary typedef
     typedef std::map<std::string, std::vector<TH1*> > histogram_dict_type;
 
+    /// Dedicated initialization method
     virtual void initialize(const manager::parameters & options_);
 
+    /// Dedicated process method
     virtual void process();
+
+  protected:
+
+    /// Main process method
+    void _process();
 
   private:
 
