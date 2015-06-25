@@ -1,5 +1,5 @@
-#ifndef MANAGER_H_
-#define MANAGER_H_ 1
+#ifndef RPU_MANAGER_H
+#define RPU_MANAGER_H 1
 
 #include <datatools/logger.h>
 
@@ -31,9 +31,11 @@ namespace rpu {
       std::vector<std::string> colors;
     };
 
-    void cldialog (int argc_, char ** argv_);
+    /// Command line dialog
+    void cldialog(int argc_, char ** argv_);
 
-    const parameters & get_parameters () const;
+    /// Get a non-mutable reference to parameters
+    const parameters & get_parameters() const;
 
   private:
 

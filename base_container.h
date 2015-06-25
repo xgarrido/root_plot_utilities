@@ -12,36 +12,46 @@ class TH1;
 
 namespace rpu {
 
+  /// \brief Base class for container
   class base_container {
 
   public:
 
-    base_container ();
+    /// Constructor
+    base_container();
 
-    void set_logging_priority (const datatools::logger::priority priority_);
+    /// Get logging priority
+    datatools::logger::priority get_logging_priority() const;
 
-    datatools::logger::priority get_logging_priority () const;
+    /// Return initialization flag
+    bool is_initialized() const;
 
-    virtual void grab (const std::vector<std::string> & files_, const std::string & name_) = 0;
+    /// Virtual initialization method
+    virtual void initialize(const manager::parameters & options_) = 0;
 
-    virtual void show (const manager::parameters & options_) = 0;
+    /// Virtual process method
+    virtual void process() = 0;
 
   protected:
 
-    datatools::logger::priority _logging_priority;
+    bool _initialized;
+    const manager::parameters * _params;
   };
 
+  /// \brief A dedicated class for 1D histogram container
   class histogram_container : public base_container {
 
   public:
 
+    /// 1D histogram dictionnary typedef
     typedef std::map<std::string, std::vector<TH1*> > histogram_dict_type;
 
-    void grab (const std::vector<std::string> & files_, const std::string & name_);
+    virtual void initialize(const manager::parameters & options_);
 
-    void show (const manager::parameters & options_);
+    virtual void process();
 
   private:
+
     histogram_dict_type _histos1d_;
   };
 
