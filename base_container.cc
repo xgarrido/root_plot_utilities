@@ -21,21 +21,22 @@ struct color {
 };
 
 // Construct the color lookup table
-color::lookup_table construct_lookup_table ()
+color::lookup_table construct_lookup_table()
 {
   color::lookup_table a =
     map_list_of
-    ("black",  TColor::GetColor ( 76,  76,  76))
-    ("red",    TColor::GetColor (255,  76,  76))
-    ("blue",   TColor::GetColor ( 76,  76, 255))
-    ("yellow", TColor::GetColor (255, 255,   0))
-    ("grey",   TColor::GetColor (179, 179, 179))
+    ("black",  TColor::GetColor( 76,  76,  76))
+    ("red",    TColor::GetColor(255,  76,  76))
+    ("blue",   TColor::GetColor( 76,  76, 255))
+    ("yellow", TColor::GetColor(255, 255,   0))
+    ("grey",   TColor::GetColor(179, 179, 179))
     ;
   return a;
 }
 
 const int get_color(const std::string & color_name_)
 {
+  DT_LOG_WARNING(datatools::logger::PRIO_WARNING, "Color name = " << color_name_);
   static color::lookup_table a;
   if (a.empty()) a = construct_lookup_table();
 
@@ -53,6 +54,10 @@ const int get_color(const std::string & color_name_)
     cname = *i;
     ++i;
   }
+
+  // Cycle over colors
+  if (i == vcolors.end()) i = vcolors.begin();
+
   color::lookup_table::const_iterator p = a.find(cname);
   return (p != a.end() ? p->second : a.begin()->second);
 }
@@ -152,7 +157,7 @@ namespace rpu {
 
         const int icolor
           = get_color(_params->colors.empty() || cnt >= _params->colors.size() ?
-                      "" : _params->colors.at(cnt));
+                      "" : _params->colors.at(cnt++));
         a_histo->SetMarkerColor(icolor);
         a_histo->SetLineColor(icolor);
         if (&ihisto == &vhistos.front()) {
