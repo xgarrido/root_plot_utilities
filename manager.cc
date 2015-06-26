@@ -50,8 +50,9 @@ namespace rpu {
        bpo::value<std::vector<std::string> >(&_parameters_.root_files),
        "set input ROOT file(s)")
       ("histogram-name",
-       bpo::value<std::string>(&_parameters_.histogram_name),
-       "set the histogram name to be catch from ROOT archive")
+       bpo::value<std::string>(&_parameters_.histogram_name)
+       ->default_value("all"),
+       "set the histogram name to be catch from ROOT archive (can be regular expression)")
       // ("graph-name",
       //  bpo::value<std::string>(&_parameters_.graph_name),
       //  "set the graph name to be catch from ROOT archive")

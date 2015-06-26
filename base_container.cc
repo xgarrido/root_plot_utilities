@@ -1,18 +1,23 @@
+// Standard library:
+#include <regex>
+
+// Ourselves:
 #include <base_container.h>
 
+// Third party:
+// - Boost:
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 using namespace boost::assign;
-
+// - ROOT:
 #include <TFile.h>
 #include <TH1.h>
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TColor.h>
 #include <TKey.h>
-
-#include <datatools/utils.h>
-
+// - Bayeux/datatools:
+#include <bayeux/datatools/utils.h>
 
 // namespace {
 struct color {
@@ -36,7 +41,6 @@ color::lookup_table construct_lookup_table()
 
 const int get_color(const std::string & color_name_)
 {
-  DT_LOG_WARNING(datatools::logger::PRIO_WARNING, "Color name = " << color_name_);
   static color::lookup_table a;
   if (a.empty()) a = construct_lookup_table();
 
@@ -47,7 +51,7 @@ const int get_color(const std::string & color_name_)
     i = vcolors.begin();
   }
 
-  std::string cname = "black";
+  std::string cname;
   if (! color_name_.empty()) {
     cname = color_name_;
   } else {
@@ -93,21 +97,19 @@ namespace rpu {
     const std::string name = _params->histogram_name;
     for (auto filename : _params->root_files) {
       TFile * rootfile = new TFile(filename.c_str());
-      if (name == "all") {
-        TIter nextkey(rootfile->GetListOfKeys());
-        TKey *key;
-        while ((key = (TKey*)nextkey())) {
-          const std::string a_class_name = key->GetClassName();
-          const std::string a_name       = key->GetName();
-          if (a_class_name.find("TH1") != std::string::npos) {
-            DT_LOG_DEBUG(get_logging_priority(), "Adding '" << a_name << "' histogram");
-            _histos1d_[a_name].push_back(dynamic_cast<TH1*>(key->ReadObj()));
+      TIter nextkey(rootfile->GetListOfKeys());
+      TKey *key;
+      while ((key = (TKey*)nextkey())) {
+        const std::string a_class_name = key->GetClassName();
+        const std::string a_name       = key->GetName();
+        if (a_class_name.find("TH1") != std::string::npos) {
+          if (name != "all" && ! std::regex_match(a_name, std::regex(name))) {
+            DT_LOG_DEBUG(get_logging_priority(), "Do not add '" << a_name << "' histogram");
+            continue;
           }
+          DT_LOG_DEBUG(get_logging_priority(), "Adding '" << a_name << "' histogram");
+          _histos1d_[a_name].push_back(dynamic_cast<TH1*>(key->ReadObj()));
         }
-      } else {
-        DT_LOG_DEBUG(get_logging_priority(), "Adding '" << name << "' histogram");
-        TH1 * h = (TH1*)rootfile->Get(name.c_str());
-        _histos1d_[name].push_back(h);
       }
     }
 
@@ -204,9 +206,9 @@ namespace rpu {
         }
       }
 
+      a_canvas->Update();
       const std::string latex_name = name + (_params->show_ratio ? "_with_ratio" : "") + ".tex";
       a_canvas->Print(latex_name.c_str());
-      a_canvas->Update();
     }
     return;
   }
