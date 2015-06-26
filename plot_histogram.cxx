@@ -33,8 +33,7 @@ int main(int argc_, char ** argv_)
 
     DT_THROW_IF(params.histogram_name.empty(), std::logic_error, "No object name has been set !");
     rpu::base_container * BC = new rpu::histogram_container;
-    TRint * a_rint = 0;
-    if (params.interactive) a_rint = new TRint("CINT ROOT", 0, 0);
+    TRint * a_rint = new TRint("CINT ROOT", 0, 0);
     BC->initialize(params);
     BC->process();
     if (params.interactive) a_rint->Run();
