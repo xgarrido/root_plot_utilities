@@ -132,15 +132,23 @@ namespace rpu {
       TCanvas * a_canvas = new TCanvas;
       a_canvas->SetName(name.c_str());
       TPad * pads[2];
+      double ratio_pad = 1.0;
 
       if (_params->show_ratio) {
         a_canvas->SetWindowSize(600, 700);
-        pads[0] = new TPad("top_pad", "top_pad", 0.0, 0.302, 1.0, 1.0);
-        pads[1] = new TPad("bot_pad", "bot_pad", 0.0, 0.0, 1.0, 0.298);
-        pads[0]->SetBottomMargin(0);
-        pads[1]->SetTopMargin(0);
+        pads[0] = new TPad("top_pad", "top_pad", 0.03, 1.0, 0.97, 0.35);
+        pads[0]->SetRightMargin(0.02);
+        pads[0]->SetBottomMargin(0.02);
         pads[0]->Draw();
+        pads[1] = new TPad("bot_pad", "bot_pad", 0.03, 0.33, 0.97, 0.0);
+        pads[1]->SetRightMargin(0.02);
+        pads[1]->SetTopMargin(0.0);
+        pads[1]->SetBottomMargin(0.2);
         pads[1]->Draw();
+        // Rescale label size
+        const double AbsHDNC0 = pads[0]->GetAbsHNDC();
+        const double AbsHDNC1 = pads[1]->GetAbsHNDC();
+        ratio_pad = AbsHDNC0/AbsHDNC1;
       } else {
         a_canvas->SetWindowSize(600, 500);
         pads[0] = a_canvas;
@@ -189,10 +197,18 @@ namespace rpu {
           clone->Divide(vhistos.front());
           if (&ihisto == &vhistos.front()) {
             clone->Draw("AXIS");
+            // Store pointer to reference histogram
             ref = clone;
-            ref->GetXaxis()->SetLabelOffset(0.05);
-            ref->GetXaxis()->SetTitleOffset(2.0);
-            ref->GetXaxis()->SetTickLength(0.03);
+            // Scale label/text size
+            a_histo->GetXaxis()->SetLabelSize(0);
+            const double label = a_histo->GetYaxis()->GetLabelSize();
+            const double title = a_histo->GetYaxis()->GetTitleSize();
+            ref->GetYaxis()->SetLabelSize(label*ratio_pad);
+            ref->GetYaxis()->SetTitleSize(title*ratio_pad);
+            ref->GetXaxis()->SetLabelSize(label*ratio_pad);
+            ref->GetXaxis()->SetTitleSize(title*ratio_pad);
+            ref->GetXaxis()->SetTitleOffset(0.8);
+            ref->GetYaxis()->SetTitleOffset(1.0/ratio_pad);
             ref->GetYaxis()->SetTitle("\\Updelta\\;\\text{ratio}");
             TF1* f = new TF1("", "1", ref->GetXaxis()->GetXmin(), ref->GetXaxis()->GetXmax());
             f->SetLineStyle(kDashed);
