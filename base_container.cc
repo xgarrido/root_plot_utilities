@@ -39,7 +39,7 @@ color::lookup_table construct_lookup_table()
   return a;
 }
 
-const int get_color(const std::string & color_name_)
+int get_color(const std::string & color_name_)
 {
   static color::lookup_table a;
   if (a.empty()) a = construct_lookup_table();
