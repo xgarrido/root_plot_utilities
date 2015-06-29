@@ -124,43 +124,43 @@ namespace rpu {
     gStyle->SetOptStat("emrou");
     gStyle->SetOptTitle(0);
     gStyle->SetStatBorderSize(0);
-    gStyle->SetStatStyle(0000);   // transparent mode of Stats PaveLabel
+    gStyle->SetStatStyle(0000);
     gStyle->SetStatX(0.85);
     gStyle->SetStatY(0.9);
+    gStyle->SetStatH(0.1);
+    gStyle->SetStatW(0.2);
 
-    // // // Turn off all borders
-    // gStyle->SetCanvasBorderMode(0);
-    // gStyle->SetCanvasBorderSize(0);
-    // gStyle->SetFrameBorderMode(0);
-    // gStyle->SetPadBorderMode(0);
-    // gStyle->SetDrawBorder(0);
-    // gStyle->SetTitleBorderSize(0);
-    // gStyle->SetLegendBorderSize(0);
-    // gStyle->SetLegendFont(42);
+    // Turn off all borders
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetCanvasBorderSize(0);
+    gStyle->SetFrameBorderMode(0);
+    gStyle->SetPadBorderMode(0);
+    gStyle->SetDrawBorder(0);
+    gStyle->SetTitleBorderSize(0);
+    gStyle->SetLegendBorderSize(0);
+    gStyle->SetLegendFont(42);
 
-    // // Set fonts
-    // gStyle->SetLabelFont(42,"xyz");
-    // gStyle->SetLabelSize(0.04,"xyz");
-    // gStyle->SetTitleFont(42,"xyz");
-    // gStyle->SetTitleFont(42);
+    // Set fonts
+    gStyle->SetLabelFont(42,"xyz");
+    gStyle->SetLabelSize(0.04,"xyz");
+    gStyle->SetTitleFont(42,"xyz");
+    gStyle->SetTitleFont(42);
     gStyle->SetTitleSize(0.05,"xyz");
-    // gStyle->SetTextFont(42);
-    // gStyle->SetStatFont(42);
-    // gStyle->SetStatFontSize(0.05);
-    // gStyle->SetTitleX(0.3);
-    // gStyle->SetTitleW(0.4);
-    // gStyle->SetStatFormat("6.3f");
-    // gStyle->SetFitFormat("6.3f");
-    // gStyle->SetTextAlign(22);
-    // gStyle->SetTextSize(0.04);
+    gStyle->SetTextFont(42);
+    gStyle->SetStatFont(42);
+    gStyle->SetStatFontSize(0.05);
+    gStyle->SetTitleX(0.3);
+    gStyle->SetTitleW(0.4);
+    gStyle->SetStatFormat("6.3f");
+    gStyle->SetFitFormat("6.3f");
+    gStyle->SetTextAlign(22);
+    gStyle->SetTextSize(0.05);
 
     // Set margins
     gStyle->SetPadTopMargin(0.08);
     gStyle->SetPadBottomMargin(0.12);
     gStyle->SetPadLeftMargin(0.12);
     gStyle->SetPadRightMargin(0.12);
-
-    // Set tick marks and turn off grids
 
     gROOT->ForceStyle();
     return;
@@ -210,11 +210,9 @@ namespace rpu {
       if (_params->show_ratio) {
         a_canvas = new TCanvas(name.c_str(), name.c_str(), 600, 700);
         pads[0] = new TPad("top_pad", "top_pad", 0.03, 1.0, 0.97, 0.35);
-        // pads[0]->SetRightMargin(0.02);
         pads[0]->SetBottomMargin(0.02);
         pads[0]->Draw();
         pads[1] = new TPad("bot_pad", "bot_pad", 0.03, 0.33, 0.97, 0.0);
-        // pads[1]->SetRightMargin(0.02);
         pads[1]->SetTopMargin(0.0);
         pads[1]->SetBottomMargin(0.2);
         pads[1]->Draw();
@@ -295,14 +293,16 @@ namespace rpu {
                              1.1*std::max(ref->GetMaximum(), clone->GetMaximum()));
             // Get chi2 value
             const double chi2 = ref->Chi2Test(clone, "CHI2/NDF");
-            DT_LOG_NOTICE(get_logging_priority(), "chi2 value = " << chi2);
             TLatex * legend = new TLatex;
             legend->SetNDC();
             legend->SetTextAlign(31);
             legend->SetTextSize(ref->GetYaxis()->GetTitleSize());
             legend->SetTextFont(42);
             legend->SetTextColor(icolor);
-            legend->SetText(0.85, 0.9, "others");
+            std::ostringstream oss;
+            oss.precision(2);
+            oss << "\\chi^{2}/\\text{ndf} = " << chi2;
+            legend->SetText(0.85, 0.9*(1-0.1*cnt), oss.str().c_str());
             legend->Draw();
           }
         }
