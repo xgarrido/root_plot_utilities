@@ -30,7 +30,15 @@ namespace rpu {
     virtual void initialize(const manager::parameters & options_) = 0;
 
     /// Virtual process method
-    virtual void process() = 0;
+    virtual void process();
+
+  protected:
+
+    /// Specialized process method
+    virtual void _process() = 0;
+
+    /// Basic initialization shared by all inherited modules
+    void _common_initialize(const manager::parameters & options_);
 
   protected:
 
@@ -48,9 +56,6 @@ namespace rpu {
 
     /// Dedicated initialization method
     virtual void initialize(const manager::parameters & options_);
-
-    /// Dedicated process method
-    virtual void process();
 
   protected:
 
