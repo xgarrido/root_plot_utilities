@@ -28,16 +28,16 @@ install(FILES
   WORLD_READ WORLD_EXECUTE
   )
 
-add_executable(plot_histogram plot_histogram.cxx)
+add_executable(rpu plot_histogram.cxx)
 
-target_link_libraries(plot_histogram
+target_link_libraries(rpu
   root_plot_utilities
   ${ROOT_LIBRARIES}
   ${Bayeux_LIBRARIES}
   )
 
 install(FILES
-  ${PROJECT_BINARY_DIR}/plot_histogram
+  ${PROJECT_BINARY_DIR}/rpu
   DESTINATION ${CMAKE_INSTALL_PREFIX}
   PERMISSIONS OWNER_READ OWNER_EXECUTE
   GROUP_READ GROUP_EXECUTE
