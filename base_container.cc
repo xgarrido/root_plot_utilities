@@ -5,11 +5,6 @@
 #include <base_container.h>
 
 // Third party:
-// - Boost:
-#include <boost/assign/list_of.hpp>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign;
-
 // - ROOT:
 #include <TROOT.h>
 #include <TStyle.h>
@@ -26,49 +21,59 @@ using namespace boost::assign;
 
 // namespace {
 struct color {
-  typedef std::map<std::string, int> lookup_table;
-  typedef std::vector<std::string>   lookup_index;
+  typedef std::map<std::string, std::string> lookup_table;
+  typedef std::vector<std::string>           lookup_index;
 };
+
 
 // Construct the color lookup table
 color::lookup_table construct_lookup_table()
 {
-  color::lookup_table a =
-    map_list_of
-    ("black",  TColor::GetColor( 76,  76,  76))
-    ("red",    TColor::GetColor(255,  76,  76))
-    ("blue",   TColor::GetColor( 76,  76, 255))
-    ("yellow", TColor::GetColor(255, 255,   0))
-    ("grey",   TColor::GetColor(179, 179, 179))
-    ;
+  color::lookup_table a = {
+    {"black",   "#000000"},
+    {"red",     "#FF4136"},
+    {"blue",    "#0074D9"},
+    {"yellow",  "#FFDC00"},
+    {"grey",    "#CCCCCC"},
+    {"green",   "#2ECC40"},
+    {"orange",  "#FF851B"},
+    {"pink",    "#F012BE"},
+    {"violet",  "#B10DC9"}
+  };
   return a;
 }
 
 int get_color(const std::string & color_name_)
 {
-  static color::lookup_table a;
-  if (a.empty()) a = construct_lookup_table();
-
-  static color::lookup_index vcolors;
-  static color::lookup_index::const_iterator i;
-  if (vcolors.empty()) {
-    vcolors += "black", "red", "blue", "yellow", "grey";
-    i = vcolors.begin();
-  }
-
-  std::string cname;
-  if (! color_name_.empty()) {
-    cname = color_name_;
+  if (color_name_[0] == '#') {
+    if (color_name_.size() != 7) {
+      DT_LOG_ERROR(datatools::logger::PRIO_ALWAYS, "Color '" << color_name_ << "' does not exist !");
+      return 0;
+    }
+    return TColor::GetColor(color_name_.c_str());
   } else {
-    cname = *i;
-    ++i;
+    static color::lookup_table a;
+    if (a.empty()) a = construct_lookup_table();
+    static color::lookup_index vcolors;
+    static color::lookup_index::const_iterator i;
+    if (vcolors.empty()) {
+      vcolors = {"black", "red", "blue", "yellow", "grey", "green",
+                 "orange", "pink", "violet"};
+      i = vcolors.begin();
+    }
+    std::string cname;
+    color::lookup_table::const_iterator j = a.find(color_name_);
+    if (j != a.end()) {
+      cname = j->second;
+    } else {
+      cname = *(i++);
+      // ++i;
+      // Cycle over colors
+      if (i == vcolors.end()) i = vcolors.begin();
+    }
+    return get_color(cname);
   }
-
-  // Cycle over colors
-  if (i == vcolors.end()) i = vcolors.begin();
-
-  color::lookup_table::const_iterator p = a.find(cname);
-  return (p != a.end() ? p->second : a.begin()->second);
+  return 0;
 }
 
 namespace rpu {
@@ -216,7 +221,7 @@ namespace rpu {
         pads[1]->SetTopMargin(0.0);
         pads[1]->SetBottomMargin(0.2);
         pads[1]->Draw();
-       } else {
+      } else {
         a_canvas = new TCanvas(name.c_str(), name.c_str(), 600, 500);
         pads[0] = a_canvas;
       }
@@ -309,7 +314,7 @@ namespace rpu {
       }
 
       a_canvas->Update();
-      const std::string latex_name = name + (_params->show_ratio ? "_with_ratio" : "") + ".tex";
+      const std::string latex_name = _params->save_directory + "/" + name + ".tex";
       a_canvas->Print(latex_name.c_str());
     }
     return;
