@@ -16,7 +16,7 @@ namespace rpu {
                       std::ostream & out_)
   {
     out_ << "Usage:" << std::endl
-         << "  rph [options]" << std::endl
+         << "  rpu [options]" << std::endl
          << "Options" << std::endl
          << od_ << std::endl;
     return;
@@ -49,6 +49,10 @@ namespace rpu {
       ("root-files,i",
        bpo::value<std::vector<std::string> >(&_parameters_.root_files),
        "set input ROOT file(s)")
+      ("save-directory",
+       bpo::value<std::string>(&_parameters_.save_directory)
+       ->default_value("/tmp"),
+       "set the storage directory")
       ("histogram-name",
        bpo::value<std::string>(&_parameters_.histogram_name)
        ->default_value("all"),

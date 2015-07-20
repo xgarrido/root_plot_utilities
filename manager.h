@@ -20,6 +20,7 @@ namespace rpu {
       std::vector<std::string> root_files;           /// ROOT files
       std::vector<std::string> unrecognized_options; /// Unrecognized options
       //
+      std::string save_directory;
       std::string histogram_name;
       std::string graph_name;
       // Rendering options
